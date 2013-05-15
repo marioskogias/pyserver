@@ -4,9 +4,10 @@ import socket
 import sys
 import os 
 
+	
 if (len(sys.argv) != 3):
 	print "Usage: "+ sys.argv[0] + " hostname post"
-	os._exit(1)
+	sys.exit(1)
 	
 host = sys.argv[1]
 port = int(sys.argv[2])
@@ -19,25 +20,35 @@ try:
 	hp = socket.gethostbyname(host)
 except:
 	print "DNS lookup failed for host" + host
-	os._exit(1)
+	sys.exit(1)
 
 print "Connecting to remote host ..."
 try:
 	s.connect((host,port))
 except socket.gaierror, e:
 	print "Address-related error connecting to server: %s" % e
-	os._exit(1)
+	sys.exit(1)
 
-print "Give me your message..."
+print "I say",
+print "The remote says".rjust(50)
+print "---------------------------------------------------------"
+try:
+	pid = os.fork()
 
-text = raw_input()
+	if (pid>0):
+		while 1:
 
-text = text+"\0"
+			text = raw_input()
 
-print "I said " + text
+			text = text+"\0"
 
-s.sendall(text)
+			s.sendall(text)
+	else:
+		while 1:
+			data = s.recv(1024)
+			data = data	
+			print(data.rjust(50))
 
-data = s.recv(1024)
-
-print "and the remote said : " + data
+except OSError, e: 
+	print >>sys.stderr, "fork #1 failed: %d (%s)" % (e.errno, e.strerror) 
+	sys.exit(1)
