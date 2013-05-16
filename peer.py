@@ -72,9 +72,15 @@ def send(so):
 
 def receive(so):
 	while 1:
+	
 		data = so.recv(1024)
-		print data.rjust(50)	
-
+		if data:
+			print data.rjust(50)	
+                else:
+                	print "Peer went away"
+                       	os.kill(os.getppid(),signal.SIGKILL)
+			os.abort()
+	
 if ((len(sys.argv) != 3) and  (len(sys.argv) != 2)):
 	print "Usage: "+ sys.argv[0] + " <hostname> <port> to join a conversation"
 	print "Usage: "+ sys.argv[0] + "server to initianlize a conversation" 
